@@ -1,0 +1,375 @@
+Here is a complete, self-contained HTML file that creates an interactive game-buying interface.
+You can copy all the code below, paste it into a new file using a text editor (like Notepad or VS Code), and save it with an .html extension (e.g., store.html). When you open that file in your web browser, it will run.
+This example includes:
+ * HTML: The structure for the game list and the shopping cart.
+ * CSS: Styling to make it look like a clean, modern store interface.
+ * JavaScript: The "interactive" part that handles adding items to the cart, calculating the total, and removing items.
+🛒 Game Store Interface (Single HTML File)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Game Store</title>
+    
+    <style>
+        /* Basic Page Styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1a2b4d;
+        }
+
+        /* Store Layout */
+        .store-container {
+            display: flex;
+            flex-wrap: wrap; /* Allows wrapping on smaller screens */
+            gap: 30px;
+            max-width: 1200px;
+            margin: 30px auto;
+        }
+
+        /* Game List (Left Side) */
+        .game-list {
+            flex: 3; /* Takes 3/4 of the space */
+            min-width: 300px;
+        }
+
+        .game-list h2 {
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            color: #007bff;
+        }
+
+        .game-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .game-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .game-item .info {
+            flex-grow: 1;
+        }
+
+        .game-item h3 {
+            margin: 0 0 5px 0;
+            color: #1a2b4d;
+        }
+
+        .game-item .price {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #28a745; /* Green for price */
+        }
+
+        /* Cart Section (Right Side) */
+        .cart-section {
+            flex: 1; /* Takes 1/4 of the space */
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            min-width: 280px;
+            /* 'sticky' makes it stay in view while scrolling the game list */
+            position: sticky;
+            top: 20px; 
+        }
+
+        .cart-section h2 {
+            border-bottom: 2px solid #6c757d;
+            padding-bottom: 10px;
+        }
+
+        #cart-items {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 5px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.95em;
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .cart-item .item-name {
+            flex-grow: 1;
+        }
+
+        .cart-item .item-price {
+            color: #555;
+            margin-left: 10px;
+        }
+
+        /* Total Price */
+        .total-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px dashed #007bff;
+            text-align: right;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #1a2b4d;
+        }
+
+        #total-price {
+            color: #28a745;
+            margin-left: 10px;
+        }
+
+        /* Buttons */
+        .btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-remove {
+            background-color: transparent;
+            color: #dc3545; /* Red for remove */
+            font-size: 1.2em;
+            font-weight: bold;
+            border: none;
+            padding: 0 5px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        .btn-remove:hover {
+            color: #a71d2a;
+        }
+
+        #checkout-btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1em;
+            margin-top: 20px;
+            background-color: #28a745; /* Green for checkout */
+        }
+
+        #checkout-btn:hover {
+            background-color: #218838;
+        }
+
+        #cart-empty-msg {
+            color: #6c757d;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>🎮 G-Store Interactive Checkout</h1>
+
+    <div class="store-container">
+        
+        <div class="game-list">
+            <h2>Games for Sale</h2>
+
+            <div class="game-item" data-id="1" data-name="Cyberia 2077" data-price="59.99">
+                <div class="info">
+                    <h3>Cyberia 2077</h3>
+                    <p class="price">$59.99</p>
+                </div>
+                <button class="btn add-to-cart">Add to Cart</button>
+            </div>
+
+            <div class="game-item" data-id="2" data-name="Starfield Legends" data-price="69.99">
+                <div class="info">
+                    <h3>Starfield Legends</h3>
+                    <p class="price">$69.99</p>
+                </div>
+                <button class="btn add-to-cart">Add to Cart</button>
+            </div>
+
+            <div class="game-item" data-id="3" data-name="Mystic Forest Chronicles" data-price="39.99">
+                <div class="info">
+                    <h3>Mystic Forest Chronicles</h3>
+                    <p class="price">$39.99</p>
+                </div>
+                <button class="btn add-to-cart">Add to Cart</button>
+            </div>
+
+            <div class="game-item" data-id="4" data-name="Asphalt Velocity 9" data-price="49.99">
+                <div class="info">
+                    <h3>Asphalt Velocity 9</h3>
+                    <p class="price">$49.99</p>
+                </div>
+                <button class="btn add-to-cart">Add to Cart</button>
+            </div>
+
+        </div>
+
+        <div class="cart-section">
+            <h2>Your Cart</h2>
+            
+            <ul id="cart-items">
+                <p id="cart-empty-msg">Your cart is empty.</p>
+            </ul>
+            
+            <div class="total-section">
+                Total: <span id="total-price">$0.00</span>
+            </div>
+
+            <button id="checkout-btn" class="btn">Checkout</button>
+        </div>
+
+    </div>
+
+    <script>
+        // Wait for the DOM to be fully loaded before running the script
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- 1. Select Elements ---
+            const gameButtons = document.querySelectorAll('.add-to-cart');
+            const cartItemsList = document.getElementById('cart-items');
+            const totalPriceEl = document.getElementById('total-price');
+            const checkoutBtn = document.getElementById('checkout-btn');
+            const cartEmptyMsg = document.getElementById('cart-empty-msg');
+
+            // --- 2. Initialize Cart State ---
+            let cart = []; // This will store our game objects
+            let total = 0;
+
+            // --- 3. Add Event Listeners ---
+
+            // Listen for clicks on all "Add to Cart" buttons
+            gameButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    // Get the game data from the parent's data- attributes
+                    const gameItem = event.target.closest('.game-item');
+                    const game = {
+                        id: gameItem.dataset.id,
+                        name: gameItem.dataset.name,
+                        price: parseFloat(gameItem.dataset.price) // Convert string price to a number
+                    };
+                    
+                    // Add to cart and update UI
+                    addToCart(game);
+                });
+            });
+
+            // Listen for clicks on the "Checkout" button
+            checkoutBtn.addEventListener('click', () => {
+                if (cart.length === 0) {
+                    alert("Your cart is empty!");
+                    return;
+                }
+                
+                alert(`Thank you for your purchase! Your total is $${total.toFixed(2)}.`);
+                
+                // Reset the cart after checkout
+                cart = [];
+                updateCartUI();
+            });
+
+            // --- 4. Core Functions ---
+
+            /**
+             * Adds a game to the cart array and updates the UI.
+             */
+            function addToCart(game) {
+                cart.push(game);
+                console.log(cart); // For debugging
+                updateCartUI();
+            }
+
+            /**
+             * Removes an item from the cart based on its index.
+             */
+            function removeFromCart(index) {
+                // Remove the item at the specified index from the cart array
+                cart.splice(index, 1);
+                updateCartUI();
+            }
+
+            /**
+             * Updates the cart list in the HTML and recalculates the total.
+             */
+            function updateCartUI() {
+                // Clear the current cart list
+                cartItemsList.innerHTML = '';
+                
+                // Reset total
+                total = 0;
+
+                if (cart.length === 0) {
+                    // Show the "empty" message if cart is empty
+                    cartItemsList.appendChild(cartEmptyMsg);
+                } else {
+                    // Hide the "empty" message by not adding it
+                    // Loop through the cart and create an <li> for each item
+                    cart.forEach((item, index) => {
+                        total += item.price; // Add item price to total
+
+                        const li = document.createElement('li');
+                        li.classList.add('cart-item');
+                        
+                        // Set the content of the list item
+                        li.innerHTML = `
+                            <span class="item-name">${item.name}</span>
+                            <span class="item-price">$${item.price.toFixed(2)}</span>
+                            <button class="btn-remove" data-index="${index}">&times;</button>
+                        `;
+
+                        // Add an event listener for the new remove button
+                        li.querySelector('.btn-remove').addEventListener('click', () => {
+                            removeFromCart(index);
+                        });
+
+                        cartItemsList.appendChild(li);
+                    });
+                }
+                
+                // Update the total price display, formatted to 2 decimal places
+                totalPriceEl.textContent = `$${total.toFixed(2)}`;
+            }
+
+            // Initial UI update on page load (to show the empty message)
+            updateCartUI();
+
+        });
+    </script>
+
+</body>
+</html>
+
