@@ -20,15 +20,3 @@ HELLo World
 </html>
 
 
-.container{
-width: 100%;
-padding : 20px;
-
-}
-
-.textbox{
-width: 200px;
-padding: 20px;
-color: blue:
-
-}
