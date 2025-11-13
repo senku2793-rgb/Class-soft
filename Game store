@@ -1,10 +1,4 @@
-Here is a complete, self-contained HTML file that creates an interactive game-buying interface.
-You can copy all the code below, paste it into a new file using a text editor (like Notepad or VS Code), and save it with an .html extension (e.g., store.html). When you open that file in your web browser, it will run.
-This example includes:
- * HTML: The structure for the game list and the shopping cart.
- * CSS: Styling to make it look like a clean, modern store interface.
- * JavaScript: The "interactive" part that handles adding items to the cart, calculating the total, and removing items.
-🛒 Game Store Interface (Single HTML File)
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
